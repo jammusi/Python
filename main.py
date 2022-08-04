@@ -1,15 +1,17 @@
 from dbApp import insert_row
 from dbApp import select
 
+colname1 = "Name"
+colname2 = "number"
+
 def _get_conn_dict():
     conn = {
-        "host": "localhost",
-        #"host": None,
+        # "host": "localhost",
         "db_name" : "test_db",
         "db_name" : "postgres",
         "user" : "postgres",
         "psswrd" : "12345",
-        "port" : None
+        #"port" : "5432"
         }
 
     return conn
@@ -18,8 +20,7 @@ def _testInsert():
     conn = _get_conn_dict()
 
     tname = "table1"
-    colname1 = "Name"
-    colname2 = "number"
+    
     vc1 = "Oren"
     vc2 = 3
 
@@ -41,35 +42,18 @@ def _testSelect():
     
     conn = _get_conn_dict()
     tname = "table1"
-    colname1 = "Name"
-    colname2 = "number"
+    # colname1 = "Name"
+    # colname2 = "number"
     
     by = {colname2: 3,colname1: "Oren"}
-
-    res = select(conn, tname, by ,None)
+    cols = [colname1,colname2]
+    # res = select(conn, tname, by ,None)
+    res = select(conn, tname, by , cols)
     
     print("select res:", res)
 
 def main(args):
 
-    check = lambda dct,key : key in dct 
-
-    d = {"k1": 4,"k2":"e"}
-
-
-    print(check(d,"e"))
-    
-    return
-    print(d.keys())
-
-
-    if "k3" in d:
-        print("yes")
-    else:
-        print("no")
-
-
-    return
     _testInsert()
     _testSelect()
     return

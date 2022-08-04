@@ -31,8 +31,9 @@ def _connect(conn: dict) -> dict:
         
         # NOTE:
         # assumption port & host will be presnt in dictionay!!
-        host = conn[con_key_host] if conn[con_key_host] else default_host
-        port = conn[con_key_port] if conn[con_key_port] else default_port
+        # if port,host key (exist & with value) - use input values 
+        host = conn[con_key_host] if con_key_host in conn and conn[con_key_host] else default_host
+        port = conn[con_key_port] if con_key_port in conn and conn[con_key_port] else default_port
 
         _conn = psycopg2.connect(host = host, 
                                     database = conn[con_key_db_name],
@@ -93,7 +94,7 @@ def _getSelectCols(cols: list) -> str:
     #for any issue select *
     if cols is not None \
                 and isinstance(cols,list) \
-                and cols.count > 0:
+                and len(cols) > 0:
         #use col named list
         col_list = _get_cols_list(cols)
 
