@@ -182,3 +182,4 @@ def insert_row(conn: dict, table_name: str, row: dict) -> bool:
         _close_connection(db)
 
     return ret
+
