@@ -52,7 +52,7 @@ def _upload(files, dest_folder, bucket) -> list:
     #return failed list
     return failed
 
-def upload(files: list, dest_folder: str, bucket_name: str) -> bool:
+def upload(files: list, dest_folder: str, bucket_name: str) -> list:
     failed = None
     try:
         #last char must be "/". 
