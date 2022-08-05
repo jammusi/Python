@@ -1,5 +1,7 @@
+import re
 from dbApp import insert_row
 from dbApp import select
+from awsApp import upload
 
 colname1 = "Name"
 colname2 = "number"
@@ -52,10 +54,34 @@ def _testSelect():
     
     print("select res:", res)
 
-def main(args):
 
-    _testInsert()
-    _testSelect()
+def upload_aws():
+    files = []
+    files.append("c:\\temp\\sr.png")
+    #suplly tuple - rename
+    files.append(("c:\\temp\\h.png","new name.png"))
+    #suplly sigle item tuple - no rename
+    files.append(("c:\\temp\\אזהרה.png"))
+    
+    #suplly sigle item tuple - no rename
+    files.append(())
+
+    toFolder = "Folder2"
+    bucket = "ojoctopus"
+    bucket = "ojbucket-2"
+
+    res = upload(files, toFolder, bucket)
+    
+    print("upload_aws done",res)
+
+def t(val ="", val1="", *args, **kwargs):
+    print(args)
+    print( kwargs)
+    print( val,val1)
+
+def main(args):
+    
+    upload_aws()    
     return
 
 if __name__ == '__main__':
