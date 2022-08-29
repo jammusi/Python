@@ -1,11 +1,18 @@
 import subprocess
-#import os
 import threading
 
-
-def _RunExe(cmdLine,processID):
+def _RunExe(cmdLine, args : list, processID):
     try:
-        subprocess.run(cmdLine, check=False)
+        #prepare the arguments list
+        _args = [cmdLine]
+    
+        if (type(args) == list):
+            # if arguments to process supplied
+            _args.extend(args)
+        
+        #execute exe file
+        subprocess.run(_args)
+
     except subprocess.CalledProcessError:
         pass        
     except subprocess.SubprocessError :
@@ -16,7 +23,7 @@ def _RunExe(cmdLine,processID):
         print ("Process {} done".format(str(processID)))
         pass
 
-def Run(exeToRun, path, numberOfInstance=1):
+def Run(exeToRun: str, path: str, args: list, numberOfInstance=1):
     
     #verify terminates with back slash
     if (path[-1] != "\\"):
@@ -27,12 +34,14 @@ def Run(exeToRun, path, numberOfInstance=1):
     threads = list()
     #start all threads 
     for i in range(numberOfInstance):
-
-        x = threading.Thread(target=_RunExe, args=(fullPath,i))
+        #create thread
+        x = threading.Thread(target=_RunExe, args=(fullPath, args, i))
+        #store for later join
         threads.append(x)
+        #start
         x.start()
 
-    # wait all treada termination
+    # wait all threads termination
     for index, thread in enumerate(threads):
         thread.join()
         print("Main    : thread {} done".format(str(index)) )
