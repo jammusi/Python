@@ -1,26 +1,13 @@
-from runExe import RunExe
+from runExe import Run
 from datetime import datetime
 import threading
     
 def _testExe():
     
-    path = "C:\\Windows\\System32\\"
-    exeToRun = "notepad.exe"
+    path = "D:\\Projects\\Momentix\\octopus-ftx_futures\\TestApp\\bin\\Debug"
+    exeToRun = "TestApp.exe"
 
-    fullPath = path + exeToRun
-
-    numOfTime = 10
-    for i in range(numOfTime):
-
-        now = datetime.now()
-        start_time = now.strftime("%H:%M:%S")
-
-
-        RunExe(fullPath)
-
-        now = datetime.now()
-        end_time = now.strftime("%H:%M:%S")
-        print ("Process started: {} and terminated: {}".format(start_time,end_time) )
+    Run(exeToRun,path,2)
 
 def _testExe2():
     
@@ -58,7 +45,7 @@ def _testExe2():
 
 
 def main(args):
-    _testExe2()
+    _testExe()
     return
 
 if __name__ == '__main__':
