@@ -1,5 +1,6 @@
 import boto3 
 import traceback
+import botocore
 
 
 def _extract_fname_from_path(path: str) -> str:
@@ -69,3 +70,48 @@ def upload(files: list, dest_folder: str, bucket_name: str) -> list:
     finally:
 
         return failed if failed and len(failed) > 0 else None
+
+def download(bucket_name, aws_folder, suffix="", download_folder="") -> list:
+    try:
+        resource = boto3.resource("s3")
+        bucket = resource.Bucket(bucket_name)
+        all_objects = bucket.objects
+        
+        #get all file names in aws folder
+        filterred = all_objects.filter(Prefix=aws_folder)
+
+        #iterate files
+        for object_summary in filterred:
+            #extract file name suffix
+            aws_file_name = object_summary.key
+            suffix_index = aws_file_name.rindex(".")
+            cur_suffix = aws_file_name[suffix_index + 1::]
+            
+            #only if suffix matched
+            if (suffix == "" or cur_suffix == suffix):
+                # print("matched: " + aws_file_name)
+
+                #extract file name without folder
+                last_folder_index = aws_file_name.rindex("/")
+                file_name = aws_file_name[last_folder_index + 1::]
+
+                #calc local name
+                local_full_file_name = download_folder + file_name
+
+                #download
+                bucket.download_file(aws_file_name, local_full_file_name)
+                print(f'{local_full_file_name} downloaded')
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            print(traceback.format_exc())
+    except Exception as e:
+        print(traceback.format_exc())
+
+# def donwload(bucket_name: str, aws_folder: str, suffix: str, download_folder="" ) -> list:
+#     try:
+#         _download(bucket_name, aws_folder, suffix, download_folder) 
+
+#     except Exception as e:
+#         print("download from AWS failed", e)
