@@ -1,18 +1,7 @@
 # from runExe import Run
 from datetime import datetime
-from pivots import pivot
 from awsApp import upload
 from awsApp import download
-
-def _testExe():
-
-    lbRight = 2    
-    lbLeft = 2
-    data = [1,2,15,10,11,12,11,10,20,9,11,13,12,8]
-    res = pivot(data,lbLeft,lbRight,"high")
-
-    print ("Pivot res:", res)
-    return res
 
 def _testUploadAWS():
     files = []
