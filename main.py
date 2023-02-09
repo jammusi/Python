@@ -19,9 +19,9 @@ def _testDownloadFromAWS():
     files.append("D:\\kraken balance\\testsnapshots.json")
     files.append("D:\\kraken balance\\test.log")
 
-    aws_folder = "Folder3/NewFolderToGet/"
+    aws_folder = "Folder3/NewFolderToGet"
     donwload_folder = "c:\\Temp\\"
-    donwload_folder = ""
+    # donwload_folder = ""
     bucket_name="ojbucket-2"
     suffix = "json"
     download(bucket_name, aws_folder, suffix, donwload_folder) 

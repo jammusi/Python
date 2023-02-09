@@ -2,6 +2,14 @@ import boto3
 import traceback
 import botocore
 
+def _validate_aws_folder_name(folder_name) -> str:
+     #last char must be "/". 
+     # append if not
+    result = folder_name
+    if folder_name.rfind("/") < len(folder_name) - 1:
+        result = folder_name + "/"
+    
+    return result
 
 def _extract_fname_from_path(path: str) -> str:
     #last backslash index
@@ -71,14 +79,15 @@ def upload(files: list, dest_folder: str, bucket_name: str) -> list:
 
         return failed if failed and len(failed) > 0 else None
 
-def download(bucket_name, aws_folder, suffix="", download_folder="") -> list:
+def download(bucket_name, aws_folder, suffix="", download_folder=""):
     try:
+        valid_aws_folder = _validate_aws_folder_name(aws_folder)
         resource = boto3.resource("s3")
         bucket = resource.Bucket(bucket_name)
         all_objects = bucket.objects
         
         #get all file names in aws folder
-        filterred = all_objects.filter(Prefix=aws_folder)
+        filterred = all_objects.filter(Prefix=valid_aws_folder)
 
         #iterate files
         for object_summary in filterred:
