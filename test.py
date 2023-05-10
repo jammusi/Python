@@ -1,29 +1,39 @@
-import binascii
-from itertools import chain, zip_longest
-from typing import Iterable, Sequence
+import pandas as pd
 
-def compute_order_book_checksum(
-    bids: Iterable[Sequence[float]], asks: Iterable[Sequence[float]]
-) -> int:
-    """
-    Compute the checksum for the order book.
 
-    Bids and asks are iterables of 2-item lists <price, quantity>.
-    The algorithm to compute the checksum of the order book is described here:
-    https://docs.ftx.com/#orderbooks
+# path ="D:\\Projects\\Momentix\\candles\\Historical_Kraken_OHLCVT\\Kraken_OHLCVT\\1INCHEUR_1.csv"
+# chunk_i = 0
+# for chunk in pd.read_csv(path, chunksize=5):
 
-    :param bids: the list of bids
-    :param asks: the list of asks
-    :return: the CRC32 checksum of the order book
-    """
+#     for index, row in chunk.iterrows():
+#         print(f"chunk:{chunk_i} index:{index} len:{len(chunk)}")
 
-    order_book_hash_iterator = zip_longest(bids, asks, fillvalue=tuple())
-    check_string = ":".join(
-        (
-            str(token)
-            for ask_level, bid_level in order_book_hash_iterator
-            for token in chain(ask_level, bid_level)
-        )
-    )
+    
+#     chunk_i += 1
 
-    return binascii.crc32(check_string.encode("ascii"))
+# pass
+
+# #create DataFrame
+# df = pd.DataFrame({'assists': [3, 4, 4, 5, 6, 7, 8, 12, 15, 11],
+#                    'rebounds': [1, 3, 3, 5, 2, 2, 1, 1, 0, 14],
+#                    'points': [20, 22, 24, 25, 20, 28, 15, 29, 11, 12]})
+
+
+# #view DataFrame
+# print(df)
+
+# #seriers
+# last_row = df.iloc[-1]
+
+
+# #data frame
+# last_row2 = df.iloc[-1:]
+
+# print (last_row)
+# print (last_row[0])
+# print ("******")
+# print (last_row2)
+# print (last_row2[0])
+
+# i =1 
+ 

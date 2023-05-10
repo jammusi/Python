@@ -91,6 +91,8 @@ def download(bucket_name, aws_folder, suffix="", download_folder=""):
 
         #iterate files
         for object_summary in filterred:
+
+            print(f' current file/folder: {object_summary.key} ')
             #extract file name suffix
             aws_file_name = object_summary.key
             suffix_index = aws_file_name.rindex(".")
