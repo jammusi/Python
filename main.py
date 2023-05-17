@@ -5,9 +5,17 @@ import pandas as pd
 from datetime import timezone, timedelta
 from CandleRecord import CandleDataRecord
 from CandleRecord import DateTimeInterval
+from enum import Enum
+
 import traceback
-import os 
-    
+import os
+
+class Enum1(Enum):
+    val1 = 1,
+    val2 = 1,
+    val3 = 3,
+    val4 = 3,
+
 def test_panda():
     file_name = "data.csv"
     file = pd.read_csv(file_name)
@@ -31,15 +39,23 @@ def test_panda():
     print(f"last: {last_ts}")
     print(f"last-2: {last_ts_2}")
     print(f"last_minus: {last_ts_minus}")
+def _test_enum():
+    e1 = Enum1.val1
+    print(e1.value == Enum1.val2.value) 
 
+    print("enum1 values")
+
+    for e in Enum1:
+        print(e)
+        
 def main(args):
 
-
-    test_panda()
+    _test_enum()
+    # test_panda()
     return
 
 
 if __name__ == '__main__':
-   
+
     main(None)
-  
+
