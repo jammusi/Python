@@ -14,7 +14,7 @@ class Enum1(Enum):
     val1 = 1,
     val2 = 1,
     val3 = 3,
-    val4 = 5,
+    val4 = 7,
 
 def test_panda():
     file_name = "data.csv"
