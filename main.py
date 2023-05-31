@@ -120,13 +120,84 @@ def _test_thread():
     thread.start()
     print(f"_test_thread: after start child thread")
 
+CSV_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S" #2021-12-06 04:00:00
+
+def _get_missing_row(last_saved: datetime, next_available: datetime, intervel: DateTimeinterval) -> dict:
+
+    # last_saved_sec = last_saved.replace(tzinfo=timezone.utc).timestamp()
+    # next_available_sec = next_available.replace(tzinfo=timezone.utc).timestamp()
+     
+    
+    # first_misssing_sec = last_saved_sec + intervel.value * 60
+
+    # last_misssing_sec = next_available_sec - intervel.value * 60
+
+    # count = (last_misssing_sec - first_misssing_sec) / 60
+
+    last_saved_dt_str = last_saved.strftime(CSV_DATE_TIME_FORMAT)
+    next_available_dt_str = next_available.strftime(CSV_DATE_TIME_FORMAT)
+    
+    first_misssing_dt = last_saved + timedelta(minutes=intervel.value)
+    first_misssing_dt_str = first_misssing_dt.strftime(CSV_DATE_TIME_FORMAT)
+
+    last_misssing_dt = next_available - timedelta(minutes=intervel.value)
+    last_misssing_dt_str = last_misssing_dt.strftime(CSV_DATE_TIME_FORMAT)
+
+    diff_sec = (next_available - last_saved).total_seconds() 
+    count =  int(((diff_sec / 60) -1) / intervel.value)
+
+    return{
+        "last_saved_sec": last_saved_dt_str,
+        "first_misssing_sec": first_misssing_dt_str,
+        "last_misssing_sec": last_misssing_dt_str,
+        "count": count,
+        "next_available_sec": next_available_dt_str,
+    }
+
+    return{
+        "last_saved_sec": last_saved_sec,
+        "first_misssing_sec": first_misssing_sec,
+        "last_misssing_sec": last_misssing_sec,
+        "count": count,
+        "next_available_sec": next_available_sec,
+    }
+
+def _create_json(full_file_name: str):
+
+    import json
+
+
+    missings = []
+
+    interval = DateTimeinterval("1m",1)
+    last_saved_date = datetime(2023, 1, 1, 20, 55, 00)
+    next_available_date = datetime(2023, 1, 1, 20, 57, 00)
+    missings.append(_get_missing_row(last_saved_date, next_available_date, interval))
+
+    # missings.append(_get_missing_row(2))
+
+
+    with open(full_file_name,"w") as _target_file:
+        json.dump(missings,_target_file)
+
+def _read_json(full_file_name: str) -> object:
+    import json
+    with open(full_file_name, "r") as _open_file:
+        data = json.load(_open_file)
+    
+    print (data)
+    print(type(data))
 
 def main(args):
 
-    #added in main to be margeed
-    #     
-    _test_thread()
-    print(f"main out")
+    full_file_name = "missing.json"
+
+    _create_json(full_file_name)
+    _read_json(full_file_name)
+
+    # _test_thread()
+
+    # print(f"main out")
 
     return
 
