@@ -122,63 +122,42 @@ def download(bucket_name, aws_folder, suffix="", download_folder=""):
 
 def delete(bucket_name: str, aws_folder: str, file_name: str) -> bool:
 
-    result = True
+    result = False
 
     try:
 
-        valid_aws_folder = _validate_aws_folder_name(aws_folder)
+        pamas_valid = _is_valid_param("file_name", file_name)
+        pamas_valid = pamas_valid and _is_valid_param("aws_folder", aws_folder)
+        pamas_valid = pamas_valid and _is_valid_param("bucket_name", bucket_name)
 
-        full_file_name = f'{valid_aws_folder}{file_name}'
-        
-        result = delete_all_versions_of_object(bucket_name, full_file_name)
+        if pamas_valid:
+            
+            valid_aws_folder = _validate_aws_folder_name(aws_folder)
+
+            full_file_name = f'{valid_aws_folder}{file_name}'
+            
+            result = _delete_all_versions_of_object(bucket_name, full_file_name)
     
     except botocore.exceptions.ClientError as e:
-        if e.response['Error']['Code'] == "404":
-            print("The object does not exist.")
-        else:
-            print(traceback.format_exc())
-        
+        print(traceback.format_exc())
         result = False
         
     except Exception as e:
         print(traceback.format_exc())
-
         result = False
 
     return result
 
-def delete2OLD(bucket_name: str, aws_folder: str, file_name: str) -> bool:
+def _is_valid_param(param_name: str, param_val) -> bool:
 
-    result = True
+    is_valid = param_val is not None and len(param_val) > 0
 
-    try:
-        valid_aws_folder = _validate_aws_folder_name(aws_folder)
-    
-        
-        client = boto3.client("s3")
+    if not is_valid:
+        print(f"Error {param_name} value is: {param_val}")
 
-        response = client.delete_object (
-            Bucket=bucket_name,
-            Key=file_name
-        )
+    return is_valid
 
-        print(response)
-    except botocore.exceptions.ClientError as e:
-        if e.response['Error']['Code'] == "404":
-            print("The object does not exist.")
-        else:
-            print(traceback.format_exc())
-        
-        result = False
-        
-    except Exception as e:
-        print(traceback.format_exc())
-
-        result = False
-
-    return result
-
-def delete_all_versions_of_object(bucket_name, full_file_name) -> bool:
+def _delete_all_versions_of_object(bucket_name, full_file_name) -> bool:
 
     is_success = True
 
@@ -186,7 +165,7 @@ def delete_all_versions_of_object(bucket_name, full_file_name) -> bool:
     
     get_obj_ver_response = s3_client.list_object_versions(Bucket=bucket_name, Prefix=full_file_name)
     
-    print(f"versions_response: {get_obj_ver_response}")
+    print(f"AWS Get versions response: {get_obj_ver_response}")
 
     objects_to_delete = []
     
@@ -227,7 +206,7 @@ def _handle_delete_response(response: dict) -> bool:
     error_key = "Error"
     is_deleted = False
 
-    print (f"Current response: {response}")
+    # print (f"Current response: {response}")
     
     if response.__contains__(error_key):
         # error occured

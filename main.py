@@ -14,7 +14,7 @@ import os
 def delete_aws_file():
     bucket_name = "ojbucket-2"
     aws_folder = "CandlesRepositoryCSVs/BTCUSD"
-    file_name = "Log4.txt"
+    file_name = "Log5.txt"
 
     result = awsApp.delete(bucket_name,aws_folder, file_name)
     print(f'awsApp.delete result: {result}')
