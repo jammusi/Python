@@ -120,9 +120,102 @@ def download(bucket_name, aws_folder, suffix="", download_folder=""):
     except Exception as e:
         print(traceback.format_exc())
 
-# def donwload(bucket_name: str, aws_folder: str, suffix: str, download_folder="" ) -> list:
-#     try:
-#         _download(bucket_name, aws_folder, suffix, download_folder) 
+def delete(bucket_name: str, aws_folder: str, file_name: str) -> bool:
 
-#     except Exception as e:
-#         print("download from AWS failed", e)
+    result = True
+
+    try:
+
+        valid_aws_folder = _validate_aws_folder_name(aws_folder)
+
+        full_file_name = f'{valid_aws_folder}{file_name}'
+        
+        result = delete_all_versions_of_object(bucket_name, full_file_name)
+    
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            print(traceback.format_exc())
+        
+        result = False
+        
+    except Exception as e:
+        print(traceback.format_exc())
+
+        result = False
+
+    return result
+
+def delete2(bucket_name: str, aws_folder: str, file_name: str) -> bool:
+
+    result = True
+
+    try:
+        valid_aws_folder = _validate_aws_folder_name(aws_folder)
+    
+        
+        client = boto3.client("s3")
+
+        response = client.delete_object (
+            Bucket=bucket_name,
+            Key=file_name
+        )
+
+        print(response)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            print(traceback.format_exc())
+        
+        result = False
+        
+    except Exception as e:
+        print(traceback.format_exc())
+
+        result = False
+
+    return result
+
+def delete_all_versions_of_object(bucket_name, full_file_name) -> bool:
+
+    is_success = True
+
+    s3_client = boto3.client("s3")
+    
+    versions = s3_client.list_object_versions(Bucket=bucket_name, Prefix=full_file_name)
+    
+    objects_to_delete = []
+    
+    for version in versions.get("Versions",[]):
+        objects_to_delete.append({"Key": full_file_name, "VersionId": version["VersionId"]})
+    
+    for delete_marker in versions.get("DeleteMarkers", []):
+        objects_to_delete.append({"Key": full_file_name, "VersionId": delete_marker["VersionId"]})
+
+    # delete objects in batches of 1000
+    del_per_call = 1000
+
+    for i in range(0, len(objects_to_delete), del_per_call):
+
+        cur_objects_to_del = objects_to_delete[i: i + del_per_call]
+
+        # response = s3_client.delete_objects(Bucket=bucket_name, Delete={"Objects": objects_to_delete[i:i+1000]})
+        response = s3_client.delete_objects(Bucket=bucket_name, Delete={"Objects": cur_objects_to_del})
+
+        cur_result = _handle_delete_response(response)
+
+        # update finla result
+        is_success = is_success and cur_result
+
+        if not is_success:
+            break
+
+    return is_success
+
+def _handle_delete_response(response):
+
+    print (response)
+
+    return True
