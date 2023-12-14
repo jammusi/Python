@@ -147,7 +147,7 @@ def delete(bucket_name: str, aws_folder: str, file_name: str) -> bool:
 
     return result
 
-def delete2(bucket_name: str, aws_folder: str, file_name: str) -> bool:
+def delete2OLD(bucket_name: str, aws_folder: str, file_name: str) -> bool:
 
     result = True
 
@@ -184,38 +184,55 @@ def delete_all_versions_of_object(bucket_name, full_file_name) -> bool:
 
     s3_client = boto3.client("s3")
     
-    versions = s3_client.list_object_versions(Bucket=bucket_name, Prefix=full_file_name)
+    get_obj_ver_response = s3_client.list_object_versions(Bucket=bucket_name, Prefix=full_file_name)
     
+    print(f"versions_response: {get_obj_ver_response}")
+
     objects_to_delete = []
     
-    for version in versions.get("Versions",[]):
+    for version in get_obj_ver_response.get("Versions",[]):
         objects_to_delete.append({"Key": full_file_name, "VersionId": version["VersionId"]})
     
-    for delete_marker in versions.get("DeleteMarkers", []):
+    for delete_marker in get_obj_ver_response.get("DeleteMarkers", []):
         objects_to_delete.append({"Key": full_file_name, "VersionId": delete_marker["VersionId"]})
 
     # delete objects in batches of 1000
     del_per_call = 1000
 
-    for i in range(0, len(objects_to_delete), del_per_call):
+    if len(objects_to_delete) > 0:
+        for i in range(0, len(objects_to_delete), del_per_call):
 
-        cur_objects_to_del = objects_to_delete[i: i + del_per_call]
+            cur_objects_to_del = objects_to_delete[i: i + del_per_call]
 
-        # response = s3_client.delete_objects(Bucket=bucket_name, Delete={"Objects": objects_to_delete[i:i+1000]})
-        response = s3_client.delete_objects(Bucket=bucket_name, Delete={"Objects": cur_objects_to_del})
+            # response = s3_client.delete_objects(Bucket=bucket_name, Delete={"Objects": objects_to_delete[i:i+1000]})
+            response = s3_client.delete_objects(Bucket=bucket_name, Delete={"Objects": cur_objects_to_del})
 
-        cur_result = _handle_delete_response(response)
+            cur_result = _handle_delete_response(response)
 
-        # update finla result
-        is_success = is_success and cur_result
+            # update finla result
+            is_success = is_success and cur_result
 
-        if not is_success:
-            break
+            if not is_success:
+                break
+    else:
+        
+        print(f"File: {full_file_name} not found")
+        is_success = False
 
     return is_success
 
-def _handle_delete_response(response):
+def _handle_delete_response(response: dict) -> bool:
 
-    print (response)
+    deleted_key = "Deleted"
+    error_key = "Error"
+    is_deleted = False
 
-    return True
+    print (f"Current response: {response}")
+    
+    if response.__contains__(error_key):
+        # error occured
+        is_deleted = False
+    elif response.__contains__(deleted_key):
+        is_deleted = len(response[deleted_key]) > 0
+
+    return is_deleted
